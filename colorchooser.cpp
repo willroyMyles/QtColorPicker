@@ -11,13 +11,14 @@ ColorChooser::ColorChooser(QWidget *parent) :
     ui(new Ui::ColorChooser)
 {
     ui->setupUi(this);
-    this->setWindowFlags(Qt::FramelessWindowHint |Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+  //  this->setWindowFlags(Qt::FramelessWindowHint |Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
     setColorBackground();
     desktop = new QDesktopWidget;
     x = ui->groupBox->geometry().x();
     y = ui->groupBox->geometry().y();
 
        setConnections();
+       setStyleForApplication();
 
 }
 
@@ -67,6 +68,15 @@ void ColorChooser::setColorBackground()
 {
     circlebg = new ColorCircle(ui->colorDisplay);
 
+}
+
+void ColorChooser::setStyleForApplication()
+{
+    setStyle(new CustomStyle(this->style()));
+    setStyleSheet( " QSlider::handle:horizontal { height: 10px; border-radius: 1px; margin: 0 4px; background: rgba(100,100,100,0.9);}"
+                  // " QSlider::groove { border: 1px solid black; margin: 2px 0px;}"
+                   " QSlider::add-page:horizontal {background: rgba(90,90,90,1); border-radius: 3px;}"
+                   " QSlider::sub-page:horizonal {background: rgba(0,0,0,1); border-radius: 3px;}");
 }
 
 void ColorChooser::mouseMoveEvent(QMouseEvent *event)
@@ -120,7 +130,7 @@ void ColorChooser::setSliders(QColor color)
     ui->hsl->setText(QString("hsv( %1, %2%, %3%)").arg(h).arg(ss).arg(v));
     ui->rgb->setText(QString("rgb( %1, %2, %3)").arg(r).arg(g).arg(b));
 
-    qDebug() << h << " " << s   << " " <<v; ;
+  //  qDebug() << h << " " << s   << " " <<v; ;
 }
 
 void ColorChooser::setValueInColor(int v)

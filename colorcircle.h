@@ -23,7 +23,8 @@ protected:
 
 private:
     QImage *image;
-    int radius, s, v;
+    int radius, v;
+    qreal s;
     QPoint centerPoint;
     QColor color;
     QPoint pos;

@@ -1,6 +1,7 @@
 #ifndef COLORCHOOSER_H
 #define COLORCHOOSER_H
 
+#include <QProxyStyle>
 #include <QWidget>
 #include <qdesktopwidget.h>
 
@@ -26,6 +27,7 @@ private:
 
     void setConnections();
     void setColorBackground();
+    void setStyleForApplication();
 
 protected:
     void mouseMoveEvent(QMouseEvent *event);
@@ -47,4 +49,34 @@ private:
 
 };
 
+
+class CustomStyle : public QProxyStyle
+
+{
+
+public:
+
+    using QProxyStyle::QProxyStyle;
+
+    int styleHint(QStyle::StyleHint hint,
+
+                  const QStyleOption* option = 0,
+
+                  const QWidget* widget = 0,
+
+                  QStyleHintReturn* returnData = 0) const
+
+    {
+
+        if (hint == QStyle::SH_Slider_AbsoluteSetButtons) {
+
+            return (Qt::LeftButton | Qt::MidButton | Qt::RightButton);
+
+        }
+
+        return QProxyStyle::styleHint(hint, option, widget, returnData);
+
+    }
+
+};
 #endif // COLORCHOOSER_H
