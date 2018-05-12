@@ -43,7 +43,7 @@ void ColorCircle::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0,0,*image);
 
-QColor color1(240,240,240,255);
+    QColor color1(240,240,240,255);
 
     QPen pen(color1,2);
     painter.setPen(pen);
@@ -52,7 +52,6 @@ QColor color1(240,240,240,255);
     color1.setRgb(0,0,0,250);
     pen.setColor(color1);
     painter.setPen(pen);
-
     painter.drawEllipse(QPoint(pos.x(), pos.y()), 2,2);
 
 }
