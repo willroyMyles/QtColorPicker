@@ -5,6 +5,9 @@
 #include <qcursor.h>
 #include "colorcircle.h"
 #include <qrgb.h>
+#include <qlayout.h>
+#include <QVBoxLayout>
+
 
 ColorChooser::ColorChooser(QWidget *parent) :
     QWidget(parent),
@@ -12,8 +15,12 @@ ColorChooser::ColorChooser(QWidget *parent) :
 {
     ui->setupUi(this);
   //  this->setWindowFlags(Qt::FramelessWindowHint |Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
-    setColorBackground();
+
     desktop = new QDesktopWidget;
+ //   setGeometry(0,0,300,300);
+    configureDisplay();
+    setColorBackground();
+
     x = ui->groupBox->geometry().x();
     y = ui->groupBox->geometry().y();
 
@@ -29,7 +36,7 @@ ColorChooser::~ColorChooser()
 
 void ColorChooser::changeBackgroundColorOfDisplayWidget()
 {
-    color.setHsv(ui->hueSlider->value(),ui->saturationSlider->value(), ui->valueSlider->value());
+    color.setHsv(hueSlider->value(),saturationSlider->value(), valueSlider->value());
     circlebg->drawSmallCircle(color);
 }
 
@@ -44,18 +51,121 @@ void ColorChooser::showColorChooser()
 
 }
 
+void ColorChooser::configureDisplay()
+{
+    setGeometry(desktop->width()/2 - 300,desktop->height()/2 - 420,300,420);
+    QVBoxLayout *vLayout = new QVBoxLayout();
+    QVBoxLayout *rgbLayout= new QVBoxLayout();
+    QVBoxLayout *hsvLayout = new QVBoxLayout();
+    QHBoxLayout *colorLayout = new QHBoxLayout();
+    QHBoxLayout *hexLayout = new QHBoxLayout();
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    QHBoxLayout *finalButtonLayout = new QHBoxLayout();
+
+    setLayout(vLayout);
+
+    colorDisplay = new QWidget();
+    rgbHolder = new QWidget();
+    rgbHolder->setLayout(rgbLayout);
+
+    hsvHolder= new QWidget();
+    hsvHolder->setLayout(hsvLayout);
+
+    hexHolder= new QWidget();
+    hexEdit = new QLineEdit();
+    hexHolder->setLayout(hexLayout);
+    hexLayout->addWidget(hexEdit);
+
+  //  buttonHolder= new QWidget();
+  //  buttonHolder->setLayout(buttonLayout);
+
+  //  mainHolder = new QWidget();
+  //  mainHolder->setLayout(hLayout);
+
+    cancel = new QPushButton("cancel");
+    select = new QPushButton("Select");
+    picker = new QPushButton("pick");
+    rgbBtn = new QPushButton("RGB");
+    hex = new QPushButton("HEX");
+    hsv = new QPushButton("HSV");
+    buttonLayout->addWidget(rgbBtn);
+    buttonLayout->addWidget(hsv);
+    buttonLayout->addWidget(hex);
+    finalButtonLayout->addWidget(cancel);
+    finalButtonLayout->addWidget(select);
+
+    groupBox = new QGroupBox();
+    stackHolder = new QStackedWidget();
+
+    redSlider = new CustomSlider(Qt::Horizontal);
+    greenSlider = new CustomSlider(Qt::Horizontal);
+    blueSlider = new CustomSlider(Qt::Horizontal);
+    hueSlider = new CustomSlider(Qt::Horizontal);
+    saturationSlider = new CustomSlider(Qt::Horizontal);
+    valueSlider = new CustomSlider(Qt::Horizontal);
+    adjustSlider = new CustomSlider(Qt::Vertical);
+    redSlider->setMinLabel(QString("R:"));
+    greenSlider->setMinLabel(QString("G:"));
+    blueSlider->setMinLabel(QString("B:"));
+    hueSlider->setMinLabel(QString("H:"));
+    saturationSlider->setMinLabel(QString("S:"));
+    valueSlider->setMinLabel(QString("V:"));
+    redSlider->setMaximum(255);
+    greenSlider->setMaximum(255);
+    blueSlider->setMaximum(255);
+    saturationSlider->setMaximum(255);
+    valueSlider->setMaximum(255);
+    hueSlider->setMaximum(359);
+
+
+    colorLayout->addWidget(colorDisplay);
+    colorLayout->addWidget(adjustSlider);
+    rgbLayout->addWidget(redSlider);
+    rgbLayout->addWidget(greenSlider);
+    rgbLayout->addWidget(blueSlider);
+    hsvLayout->addWidget(hueSlider);
+    hsvLayout->addWidget(saturationSlider);
+    hsvLayout->addWidget(valueSlider);
+
+
+    stackHolder->addWidget(rgbHolder);
+    stackHolder->addWidget(hsvHolder);
+    stackHolder->addWidget(hexHolder);
+
+
+   // vLayout->addWidget(mainHolder);
+   // vLayout->addWidget(buttonHolder);
+    vLayout->addLayout(colorLayout);
+    vLayout->addLayout(buttonLayout);
+    vLayout->addWidget(stackHolder);
+    vLayout->addLayout(finalButtonLayout);
+
+}
+
 void ColorChooser::setConnections()
 {
+    connect(rgbBtn, &QPushButton::pressed, [this](){
+        stackHolder->setCurrentIndex(0);
+    });
+    connect(hsv, &QPushButton::pressed, [this](){
+        stackHolder->setCurrentIndex(1);
+    });
+    connect(hex, &QPushButton::pressed, [this](){
+        stackHolder->setCurrentIndex(2);
+    });
+
+
+
     connect(ui->picker, SIGNAL(clicked(bool)),this, SLOT(showColorChooser()));
-    connect(ui->hueSlider, SIGNAL(valueChanged(int)), this, SLOT(changeBackgroundColorOfDisplayWidget()));
-    connect(ui->saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(changeBackgroundColorOfDisplayWidget()));
-    connect(ui->valueSlider, SIGNAL(valueChanged(int)), this, SLOT(setValueInColor(int)));
-    connect(ui->cancel, &QPushButton::pressed, [this]() {
+    connect(hueSlider, SIGNAL(valueChanged(int)), this, SLOT(changeBackgroundColorOfDisplayWidget()));
+    connect(saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(changeBackgroundColorOfDisplayWidget()));
+    connect(valueSlider, SIGNAL(valueChanged(int)), this, SLOT(setValueInColor(int)));
+    connect(cancel, &QPushButton::pressed, [this]() {
         destroy(this);
         exit(0);
 
     });
-    connect(ui->select, &QPushButton::pressed, [this]() {
+    connect(select, &QPushButton::pressed, [this]() {
         destroy(this);
         exit(0);
     });
