@@ -26,12 +26,13 @@ void ColorCircle::drawSmallCircle(QColor color)
    qreal y = sat* qSin(theta) + centerPoint.y();
     QPoint vector(x,y);
     pos = QPoint(x,y);
+    this->v = color.value();
     repaint();
 }
 
-void ColorCircle::setValueInColor(int v)
+void ColorCircle::setValueInColor(QColor color)
 {
-    this->v = v;
+    this->v = color.value();
     drawCircleColorBackground();
     repaint();
 }
@@ -43,13 +44,20 @@ void ColorCircle::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0,0,*image);
 
-    QColor color1(240,240,240,255);
+    QColor color1(240,240,240);
+
+
+
 
     QPen pen(color1,2);
     painter.setPen(pen);
     painter.drawEllipse(4,4,width()-8, height()-8);
 
-    color1.setRgb(0,0,0,250);
+    if(v < 195)
+        color1 = color1.fromRgb(250,250,250);
+    else
+        color1 = color1.fromRgb(50,50,50);
+   // color1.setRgb(0,0,0,250);
     pen.setColor(color1);
     painter.setPen(pen);
     painter.drawEllipse(QPoint(pos.x(), pos.y()), 2,2);
@@ -186,9 +194,16 @@ QColor ColorCircle::getCurrentColorFromPosition()
         s = (qSqrt(d)/radius)*255.0f;
         qreal theta = qAtan2(pos.ry()-centerPoint.ry(), pos.rx()-centerPoint.rx());
         theta = (180 +90 + (int)qRadiansToDegrees(theta))%360;
-        if(s > 255)
+        if(s >= 253)
             s=255;
-        color.setHsv(theta,s,v,255);
+        if(s <= 2)
+            s=0;
+        if(v >= 253)
+            v=255;
+        if(v<=2)
+            v=0;
+
+            color.setHsv(theta,s,v,255);
         qDebug() << theta << " " << s << " " << v;
         return color;
 

@@ -10,7 +10,7 @@ public:
     explicit ColorCircle(QWidget *parent = nullptr);
     void drawSmallCircle(QColor color);
     void updateColor(int h, int s);
-    void setValueInColor(int v);
+    void setValueInColor(QColor color);
 
 signals:
     void positionChanged(QColor color);

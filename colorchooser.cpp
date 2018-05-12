@@ -14,15 +14,14 @@ ColorChooser::ColorChooser(QWidget *parent) :
     ui(new Ui::ColorChooser)
 {
     ui->setupUi(this);
-  //  this->setWindowFlags(Qt::FramelessWindowHint |Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+    this->setWindowFlags(Qt::FramelessWindowHint |Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
     desktop = new QDesktopWidget;
- //   setGeometry(0,0,300,300);
     configureDisplay();
     setColorBackground();
 
-    x = ui->groupBox->geometry().x();
-    y = ui->groupBox->geometry().y();
+    x = groupBox->geometry().x();
+    y = groupBox->geometry().y();
 
        setConnections();
        setStyleForApplication();
@@ -34,16 +33,28 @@ ColorChooser::~ColorChooser()
     delete ui;
 }
 
-void ColorChooser::changeBackgroundColorOfDisplayWidget()
+void ColorChooser::changeBackgroundColorOfDisplayWidgetHsv()
 {
     color.setHsv(hueSlider->value(),saturationSlider->value(), valueSlider->value());
     circlebg->drawSmallCircle(color);
+    setValueInColor();
+    setRgbSliders(color);
+
+
+}
+void ColorChooser::changeBackgroundColorOfDisplayWidgetRgb()
+{
+
+    color.setRgb(redSlider->value(),greenSlider->value(), blueSlider->value());
+    circlebg->drawSmallCircle(color);
+    setValueInColor();
+    setHsvSliders(color);
 }
 
 void ColorChooser::showColorChooser()
 {
     this->setGeometry(0,0,desktop->width(),desktop->height());
-    ui->groupBox->setGeometry(desktop->width()/2 - ui->groupBox->width()/2, desktop->height()/2 - ui->groupBox->height()/2, ui->groupBox->width(), ui->groupBox->height());
+    //ui->groupBox->setGeometry(desktop->width()/2 - ui->groupBox->width()/2, desktop->height()/2 - ui->groupBox->height()/2, ui->groupBox->width(), ui->groupBox->height());
     hide();
     this->pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
     show();
@@ -53,7 +64,7 @@ void ColorChooser::showColorChooser()
 
 void ColorChooser::configureDisplay()
 {
-    setGeometry(desktop->width()/2 - 300,desktop->height()/2 - 420,300,420);
+    setGeometry(desktop->width()/2 - 150,desktop->height()/2 - 210,300,420);
     QVBoxLayout *vLayout = new QVBoxLayout();
     QVBoxLayout *rgbLayout= new QVBoxLayout();
     QVBoxLayout *hsvLayout = new QVBoxLayout();
@@ -104,6 +115,10 @@ void ColorChooser::configureDisplay()
     saturationSlider = new CustomSlider(Qt::Horizontal);
     valueSlider = new CustomSlider(Qt::Horizontal);
     adjustSlider = new CustomSlider(Qt::Vertical);
+    connect(valueSlider,SIGNAL(valueChanged(int)),adjustSlider,SLOT(setValue(int)));
+    connect(adjustSlider,SIGNAL(valueChanged(int)),valueSlider,SLOT(setValue(int)));
+
+
     redSlider->setMinLabel(QString("R:"));
     greenSlider->setMinLabel(QString("G:"));
     blueSlider->setMinLabel(QString("B:"));
@@ -111,11 +126,12 @@ void ColorChooser::configureDisplay()
     saturationSlider->setMinLabel(QString("S:"));
     valueSlider->setMinLabel(QString("V:"));
     redSlider->setMaximum(255);
-    greenSlider->setMaximum(255);
-    blueSlider->setMaximum(255);
-    saturationSlider->setMaximum(255);
-    valueSlider->setMaximum(255);
-    hueSlider->setMaximum(359);
+    greenSlider->setMaximum(256);
+    blueSlider->setMaximum(256);
+    saturationSlider->setMaximum(256);
+    valueSlider->setMaximum(256);
+    adjustSlider->setMaximum(256);
+    hueSlider->setMaximum(360);
 
 
     colorLayout->addWidget(colorDisplay);
@@ -154,15 +170,25 @@ void ColorChooser::setConnections()
         stackHolder->setCurrentIndex(2);
     });
 
-
-
-    connect(ui->picker, SIGNAL(clicked(bool)),this, SLOT(showColorChooser()));
-    connect(hueSlider, SIGNAL(valueChanged(int)), this, SLOT(changeBackgroundColorOfDisplayWidget()));
-    connect(saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(changeBackgroundColorOfDisplayWidget()));
-    connect(valueSlider, SIGNAL(valueChanged(int)), this, SLOT(setValueInColor(int)));
-    connect(cancel, &QPushButton::pressed, [this]() {
+    connect(picker, SIGNAL(clicked(bool)),this, SLOT(showColorChooser()));
+    connect(hueSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
+    connect(saturationSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
+    connect(valueSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
+    connect(adjustSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
+    connect(redSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetRgb()));
+    connect(greenSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetRgb()));
+    connect(blueSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetRgb()));
+    connect(hueSlider, SIGNAL(sliderMoved(int)), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
+    connect(saturationSlider, SIGNAL(sliderMoved(int)), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
+    connect(valueSlider, SIGNAL(sliderMoved(int)), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
+    connect(adjustSlider, SIGNAL(sliderMoved(int)), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
+    connect(redSlider, SIGNAL(sliderMoved(int)), this, SLOT(changeBackgroundColorOfDisplayWidgetRgb()));
+    connect(greenSlider, SIGNAL(sliderMoved(int)), this, SLOT(changeBackgroundColorOfDisplayWidgetRgb()));
+    connect(blueSlider, SIGNAL(sliderMoved(int)), this, SLOT(changeBackgroundColorOfDisplayWidgetRgb()));
+   connect(cancel, &QPushButton::pressed, [this]() {
         destroy(this);
         exit(0);
+
 
     });
     connect(select, &QPushButton::pressed, [this]() {
@@ -176,35 +202,56 @@ void ColorChooser::setConnections()
 
 void ColorChooser::setColorBackground()
 {
-    circlebg = new ColorCircle(ui->colorDisplay);
+    colorDisplay->setGeometry(0,0,132,132);
+    circlebg = new ColorCircle(colorDisplay);
 
 }
 
 void ColorChooser::setStyleForApplication()
 {
     setStyle(new CustomStyle(this->style()));
-    setStyleSheet( " QSlider::handle:horizontal { height: 10px; border-radius: 1px; margin: 0 4px; background: rgba(100,100,100,0.9);}"
-                  // " QSlider::groove { border: 1px solid black; margin: 2px 0px;}"
-                   " QSlider::add-page:horizontal {background: rgba(90,90,90,1); border-radius: 3px;}"
-                   " QSlider::sub-page:horizonal {background: rgba(0,0,0,1); border-radius: 3px;}");
+    setStyleSheet( " QSlider::handle { height: 0px; width:1px; margin: -2px 0px; background: rgba(250,100,100,0.9);}"
+                   " QSlider::groove { border: 1px solid black; margin: 2px 0px;}"
+                   " QSlider::add-page {background: rgba(90,90,90,1); border-radius: 3px;}"
+                   " QSlider::sub-page {background: rgba(0,0,0,1); border-radius: 3px;}");
+}
+
+void ColorChooser::ErrorAdjustSliderValues()
+{
+   QVector<CustomSlider*> list;
+    list.append(redSlider);
+    list.append(greenSlider);
+    list.append(blueSlider);
+  //  list.append(hueSlider);
+    list.append(saturationSlider);
+    list.append(adjustSlider);
+
+    for(int i=0; i< list.length(); i++){
+        auto s = list.at(i);
+        if(s->value() <= 2)
+            s->setValue(0);
+        if(s->value()>= 253){
+            s->setValue(255);
+            qDebug() << s << " " << s->value();
+        }
+    }
+
 }
 
 void ColorChooser::mouseMoveEvent(QMouseEvent *event)
 {
-    if(ui->picker->isChecked()){
+    if(picker->isChecked()){
         rgb = pixmap.toImage().pixel(this->mapFromGlobal(QCursor::pos()));
         color = color.fromRgb(rgb);
-        ui->hueSlider->setValue(color.hsvHue());
-        ui->saturationSlider->setValue(color.hsvSaturation());
-        ui->valueSlider->setValue(color.value());
+        setSliders(color);
     }
 }
 
 void ColorChooser::mousePressEvent(QMouseEvent *event)
 {
-    ui->picker->setChecked(false);
-    setGeometry(desktop->width()/2 - ui->groupBox->width()/2, desktop->height()/2 - ui->groupBox->height()/2, ui->groupBox->width(), ui->groupBox->height());
-    ui->groupBox->setGeometry(4,4,ui->groupBox->width(), ui->groupBox->height());
+    picker->setChecked(false);
+    setGeometry(desktop->width()/2 - groupBox->width()/2, desktop->height()/2 - groupBox->height()/2, groupBox->width(), groupBox->height());
+    groupBox->setGeometry(4,4,groupBox->width(), groupBox->height());
     repaint();
 }
 
@@ -215,7 +262,7 @@ void ColorChooser::enterEvent(QEvent *)
 
 void ColorChooser::paintEvent(QPaintEvent *event)
 {
-    if(ui->picker->isChecked()){
+    if(picker->isChecked()){
     QPainter painter(this) ;
     painter.drawPixmap(0,0,desktop->width(),desktop->height(),pixmap);
     }
@@ -223,29 +270,52 @@ void ColorChooser::paintEvent(QPaintEvent *event)
 
 void ColorChooser::setSliders(QColor color)
 {
-    int r,g,b;
-    r = color.red();
-    g = color.green();
-    b = color.blue();
-    h = color.hsvHue();
-    s = color.hsvSaturation();
-    v= color.value();
-    l = color.lightness();
+    setRgbSliders(color);
+    setHsvSliders(color);
 
-    qreal ss = s/255*100;
-
-    ui->hueSlider->setValue(h);
-    ui->saturationSlider->setValue(s);
-    ui->valueSlider->setValue(v);
-    ui->hsl->setText(QString("hsv( %1, %2%, %3%)").arg(h).arg(ss).arg(v));
-    ui->rgb->setText(QString("rgb( %1, %2, %3)").arg(r).arg(g).arg(b));
-
-  //  qDebug() << h << " " << s   << " " <<v; ;
 }
 
-void ColorChooser::setValueInColor(int v)
+void ColorChooser::setRgbSliders(QColor color)
 {
-    circlebg->setValueInColor(v);
+
+    redSlider->setValue(color.red());
+    greenSlider->setValue(color.green());
+    blueSlider->setValue(color.blue());
+    this->color = color;
+  //   ErrorAdjustSliderValues();
+    setSliderLabels();
+}
+
+void ColorChooser::setHsvSliders(QColor color)
+{
+
+    hueSlider->setValue(color.hsvHue());
+    saturationSlider->setValue(color.hsvSaturation());
+    valueSlider->setValue(color.value());
+    this->color = color;
+ //    ErrorAdjustSliderValues();
+    setSliderLabels();
+
+}
+
+void ColorChooser::setSliderLabels()
+{
+    ErrorAdjustSliderValues();
+
+    hueSlider->setMaxLabel(QString::number(hueSlider->value()));
+    saturationSlider->setMaxLabel(QString::number(saturationSlider->value()));
+    valueSlider->setMaxLabel(QString::number(valueSlider->value()));
+    redSlider->setMaxLabel(QString::number(color.red()));
+    greenSlider->setMaxLabel(QString::number(color.green()));
+    blueSlider->setMaxLabel(QString::number(color.blue()));
+
+}
+
+
+void ColorChooser::setValueInColor()
+{
+
+    circlebg->setValueInColor(color);
 }
 
 

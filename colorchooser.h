@@ -84,7 +84,8 @@ public:
     ~ColorChooser();
 
 private slots:
-    void changeBackgroundColorOfDisplayWidget();
+    void changeBackgroundColorOfDisplayWidgetHsv();
+    void changeBackgroundColorOfDisplayWidgetRgb();
     void showColorChooser();
     void configureDisplay();
 
@@ -95,6 +96,7 @@ private:
     void setConnections();
     void setColorBackground();
     void setStyleForApplication();
+    void ErrorAdjustSliderValues();
 
 protected:
     void mouseMoveEvent(QMouseEvent *event);
@@ -104,7 +106,10 @@ protected:
 
     private slots:
     void setSliders(QColor color);
-    void setValueInColor(int v);
+    void setRgbSliders(QColor color);
+    void setHsvSliders(QColor color);
+    void setSliderLabels();
+    void setValueInColor();
 
 private:
     QDesktopWidget *desktop;
