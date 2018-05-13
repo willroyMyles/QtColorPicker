@@ -66,7 +66,6 @@ void ColorCircle::paintEvent(QPaintEvent *event)
 
 void ColorCircle::mouseMoveEvent(QMouseEvent *event)
 {
-    //QPoint mousePoint = mapFromGlobal(QCursor::pos());
 
 
 
@@ -74,14 +73,6 @@ void ColorCircle::mouseMoveEvent(QMouseEvent *event)
         isDragging = true;
     }
 
-//    if(inCircle(mousePoint)){
-//        pos = mousePoint;
-//        repaint();
-//        emit positionChanged( getCurrentColorFromPosition() );
-
-//    }
-
- //   if(outsideCirle(mousePoint)){
     QPoint mousePoint = event->pos();
         QVector2D mousePos(mousePoint.x(), mousePoint.y());
         auto centerPos = QVector2D(centerPoint.x(), centerPoint.y());

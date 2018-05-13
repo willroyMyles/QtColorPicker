@@ -18,63 +18,9 @@ class ColorChooser;
 }
 
 class ColorCircle;
-class CustomSlider : public QSlider
-{
-    Q_OBJECT
-   public:
-
-    QString minLabel;
-    QString maxLabel;
-
-    void setMinAndMaxLabels(QString min, QString max){
-        maxLabel = max;
-        minLabel = min;
-    }
-
-    void setMaxLabel(QString string){
-        maxLabel = string;
-    }
-
-    void setMinLabel(QString string){
-        minLabel = string;
-    }
-
-    CustomSlider(QWidget *parent = Q_NULLPTR){
-        QSlider::QSlider(parent);
-    }
-    CustomSlider(Qt::Orientation orientation, QWidget *parent = Q_NULLPTR){
-        QSlider::QSlider(parent);
-        QSlider::setOrientation(orientation);
-    }
-
-protected:
-    void paintEvent(QPaintEvent *event){
-        QSlider::paintEvent(event);
-
-        QPainter painter(this);
-        QRect rect = geometry();
-      //  this->setFont();
-
-        if(orientation() == Qt::Horizontal){
-            int x = 5;
-            int z = (rect.width()-maxLabel.length()*4) -13;
-            qreal y = rect.height() * .75;
-            QColor color(250,250,250);
-            QPen pen(color);
-            painter.setPen(pen);
-            painter.drawText(QPoint(x,y),minLabel);
-            painter.drawText(QPoint(z,y),maxLabel);
 
 
-        }else{
-
-        }
-
-    }
-
-};
-
-
+class CustomSlider;
 class ColorChooser : public QWidget
 {
     Q_OBJECT
@@ -86,8 +32,9 @@ public:
 private slots:
     void changeBackgroundColorOfDisplayWidgetHsv();
     void changeBackgroundColorOfDisplayWidgetRgb();
-    void showColorChooser();
     void configureDisplay();
+    void enterPickerMode();
+
 
 private:
     Ui::ColorChooser *ui;
@@ -97,10 +44,13 @@ private:
     void setColorBackground();
     void setStyleForApplication();
     void ErrorAdjustSliderValues();
+    void exitPickerMode();
+    QString toHex();
+    QString toHex(int a);
 
 protected:
     void mouseMoveEvent(QMouseEvent *event);
-    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
     void enterEvent(QEvent *);
     void paintEvent(QPaintEvent *event);
 
@@ -111,13 +61,14 @@ protected:
     void setSliderLabels();
     void setValueInColor();
 
+
 private:
     QDesktopWidget *desktop;
     QPixmap pixmap;
     QRgb rgb;
     QColor color;
     ColorCircle* circlebg;
-    int r,g,b,a,h,s,v,l, x, y;
+    int r,g,b,a,h,s,v,l, x, y, gWidth, gHeight;
 
     QGroupBox* groupBox;
     CustomSlider *redSlider, *greenSlider, *blueSlider, *hueSlider, *saturationSlider, *valueSlider, *adjustSlider;
@@ -159,6 +110,97 @@ public:
     }
 
 };
+class CustomSlider : public QSlider
+{
+    Q_OBJECT
+   public:
 
+    QString minLabel;
+    QString maxLabel;
+
+    void setMinAndMaxLabels(QString min, QString max){
+       setMinLabel(min);
+       setMaxLabel(max);
+    }
+
+    void setMaxLabel(QString string){
+        maxLabel = string;
+        repaint();
+    }
+
+    void setMinLabel(QString string){
+        minLabel = string;
+    }
+
+    CustomSlider(QWidget *parent = Q_NULLPTR){
+        QSlider::QSlider(parent);
+        QSlider::setStyle(new CustomStyle(this->style()));
+        connect(this,&QSlider::sliderReleased,[this](){
+           adjustValue();
+        });
+
+    }
+    CustomSlider(Qt::Orientation orientation, QWidget *parent = Q_NULLPTR){
+        QSlider::QSlider(parent);
+        QSlider::setOrientation(orientation);
+        QSlider::setStyle(new CustomStyle(this->style()));
+        connect(this,&QSlider::sliderReleased,[this](){
+           adjustValue();
+        });
+    }
+
+    void adjustValue(){
+        qDebug() << "test";
+        if(value() <= 2)
+           setValue(0);
+        if(value()>= 253 && maximum()==255){
+            setValue(255);
+         }
+        setMaxLabel(QString::number(value()));
+           emit QSlider::sliderPressed();
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event){
+        QSlider::paintEvent(event);
+
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::HighQualityAntialiasing);
+
+        QRect rect = geometry();
+      //  this->setFont();
+
+        if(orientation() == Qt::Horizontal){
+            int x = 5;
+            int z = (rect.width()-maxLabel.length()*4) -13;
+            qreal y = rect.height() * .75;
+            QColor color(250,250,250);
+            QPen pen(color);
+            painter.setPen(pen);
+            painter.drawText(QPoint(x,y),minLabel);
+            painter.drawText(QPoint(z,y),maxLabel);
+
+
+        }else{
+
+            int x = width()/2 -1;
+            qreal y = (rect.height()/255.0f) * value();
+            qDebug() << value() << "   " << rect.height()  << "  " << y;
+            QColor color(250,250,250);
+            if(value() > 195)
+                color.setRgb(50,50,50);
+            QPen pen(color);
+            pen.setWidth(2);
+            painter.setPen(pen);
+            painter.drawEllipse(x,y,5,5);
+
+        }
+
+    }
+
+private:
+
+
+};
 
 #endif // COLORCHOOSER_H
