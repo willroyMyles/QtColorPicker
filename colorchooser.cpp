@@ -15,6 +15,7 @@ ColorChooser::ColorChooser(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::FramelessWindowHint |Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+    setAttribute(Qt::WA_TranslucentBackground);
     desktop = new QDesktopWidget;
 
     setGeometry(desktop->width()/2 - 150,desktop->height()/2 - 200,300,400);
@@ -67,6 +68,12 @@ void ColorChooser::configureDisplay()
     QHBoxLayout *hexLayout = new QHBoxLayout();
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QHBoxLayout *finalButtonLayout = new QHBoxLayout();
+    QHBoxLayout *rSliderSpin = new QHBoxLayout();
+        QHBoxLayout *gSliderSpin = new QHBoxLayout();
+        QHBoxLayout *bSliderSpin = new QHBoxLayout();
+        QHBoxLayout *hSliderSpin = new QHBoxLayout();
+        QHBoxLayout *sSliderSpin = new QHBoxLayout();
+        QHBoxLayout *vSliderSpin = new QHBoxLayout();
     groupBox->setLayout(vLayout);
 
     rgbLayout->setSpacing(0);
@@ -97,6 +104,7 @@ void ColorChooser::configureDisplay()
     select = new QPushButton("Select");
     picker = new QPushButton("pick");
     picker->setCheckable(true);
+    picker->setChecked(false);
 //    picker->setAutoExclusive(true);
     rgbBtn = new QPushButton("RGB");
     rgbBtn->setCheckable(true);
@@ -129,6 +137,18 @@ void ColorChooser::configureDisplay()
     connect(valueSlider,SIGNAL(valueChanged(int)),adjustSlider,SLOT(setValue(int)));
     connect(adjustSlider,SIGNAL(valueChanged(int)),valueSlider,SLOT(setValue(int)));
 
+    rSpin = new QSpinBox();
+        rSpin->setRange(0,255);
+        gSpin = new QSpinBox();
+        gSpin->setRange(0,255);
+        bSpin = new QSpinBox();
+        bSpin->setRange(0,255);
+        hSpin = new QSpinBox();
+        hSpin->setRange(0,360);
+        sSpin = new QSpinBox();
+        sSpin->setRange(0,255);
+        vSpin = new QSpinBox();
+        vSpin->setRange(0,255);
 
     redSlider->setMinLabel(QString("R:"));
     greenSlider->setMinLabel(QString("G:"));
@@ -149,12 +169,31 @@ void ColorChooser::configureDisplay()
     colorLayout->addWidget(adjustSlider);
     colorLayout->addSpacing(50);
 
-    rgbLayout->addWidget(redSlider);
-    rgbLayout->addWidget(greenSlider);
-    rgbLayout->addWidget(blueSlider);
-    hsvLayout->addWidget(hueSlider);
-    hsvLayout->addWidget(saturationSlider);
-    hsvLayout->addWidget(valueSlider);
+    rSliderSpin->addWidget(redSlider);
+        rSliderSpin->addWidget(rSpin);
+        gSliderSpin->addWidget(greenSlider);
+        gSliderSpin->addWidget(gSpin);
+        bSliderSpin->addWidget(blueSlider);
+        bSliderSpin->addWidget(bSpin);
+        hSliderSpin->addWidget(hueSlider);
+        hSliderSpin->addWidget(hSpin);
+        sSliderSpin->addWidget(saturationSlider);
+        sSliderSpin->addWidget(sSpin);
+        vSliderSpin->addWidget(valueSlider);
+        vSliderSpin->addWidget(vSpin);
+
+        rgbLayout->addLayout(rSliderSpin);
+        rgbLayout->addLayout(gSliderSpin);
+        rgbLayout->addLayout(bSliderSpin);
+        hsvLayout->addLayout(hSliderSpin);
+        hsvLayout->addLayout(sSliderSpin);
+        hsvLayout->addLayout(vSliderSpin);
+//    rgbLayout->addWidget(redSlider);
+//    rgbLayout->addWidget(greenSlider);
+//    rgbLayout->addWidget(blueSlider);
+//    hsvLayout->addWidget(hueSlider);
+//    hsvLayout->addWidget(saturationSlider);
+//    hsvLayout->addWidget(valueSlider);
 
 
     stackHolder->addWidget(rgbHolder);
@@ -190,7 +229,10 @@ void ColorChooser::setConnections()
         stackHolder->setCurrentIndex(2);
     });
 
-    connect(picker, SIGNAL(pressed()),this, SLOT(enterPickerMode()));
+    //picker->setChecked(true);
+    //connect(picker, SIGNAL(clicked(bool)),picker, SLOT(toggle()));
+    connect(picker, SIGNAL(toggled(bool)),this,SLOT(pickerMode(bool)));
+
     connect(hueSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
     connect(saturationSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
     connect(valueSlider, SIGNAL(sliderPressed()), this, SLOT(changeBackgroundColorOfDisplayWidgetHsv()));
@@ -217,6 +259,19 @@ void ColorChooser::setConnections()
     });
 
     connect(circlebg, SIGNAL(positionChanged(QColor)), this,SLOT(setSliders(QColor)));
+
+    connect(rSpin, SIGNAL(valueChanged(int)),redSlider,SLOT(setValue(int)));
+        connect(gSpin, SIGNAL(valueChanged(int)),greenSlider,SLOT(setValue(int)));
+        connect(bSpin, SIGNAL(valueChanged(int)),blueSlider,SLOT(setValue(int)));
+        connect(hSpin, SIGNAL(valueChanged(int)),hueSlider,SLOT(setValue(int)));
+        connect(sSpin, SIGNAL(valueChanged(int)),saturationSlider,SLOT(setValue(int)));
+        connect(vSpin, SIGNAL(valueChanged(int)),valueSlider,SLOT(setValue(int)));
+        connect(redSlider, SIGNAL(valueChanged(int)),rSpin,SLOT(setValue(int)));
+        connect(greenSlider, SIGNAL(valueChanged(int)),gSpin,SLOT(setValue(int)));
+        connect(blueSlider, SIGNAL(valueChanged(int)),bSpin,SLOT(setValue(int)));
+        connect(hueSlider, SIGNAL(valueChanged(int)),hSpin,SLOT(setValue(int)));
+        connect(saturationSlider, SIGNAL(valueChanged(int)),sSpin,SLOT(setValue(int)));
+        connect(valueSlider, SIGNAL(valueChanged(int)),vSpin,SLOT(setValue(int)));
 
 }
 
@@ -251,80 +306,31 @@ void ColorChooser::ErrorAdjustSliderValues()
 
 void ColorChooser::exitPickerMode()
 {
-    picker->setChecked(false);
     setGeometry(desktop->width()/2 - gWidth/2,desktop->height()/2 - gHeight/2,gWidth,gHeight);
+    setMouseTracking(false);
     repaint();
+    picker->setChecked(false);
 }
 
-QString ColorChooser::toHex()
-{
 
-    QString s;
-    s.append('#');
-    s.append(toHex(color.red()));
-    s.append(toHex(color.green()));
-    s.append(toHex(color.blue()));
 
-    qDebug() << toHex(color.red());
-    qDebug() << toHex(color.green());
-    qDebug() << toHex(color.blue());
-    return s;
-}
-
-QString ColorChooser::toHex(int a)
-{
-
-    int rem;
-    QString s;
-    if(a==0){
-        s.append("00");
-        return s;
-    }
-    while(a>0){
-        rem = a%16;
-    if(rem>=10){
-        switch(rem){
-        case 10:
-            s.append('A');
-            break;
-        case 11:
-            s.append('B');
-            break;
-        case 12:
-            s.append('C');
-            break;
-        case 13:
-            s.append('D');
-            break;
-        case 14:
-            s.append('E');
-            break;
-        case 15:
-            s.append('F');
-            break;
-        }
-    }
-    a = a/16;
-    if(a==0){
-        s.append("0");
-        return s;
-    }
-    }
-
-    return s;
-}
 
 void ColorChooser::enterPickerMode()
 {
-    if(!picker->isChecked()){
-        picker->setChecked(true);
-    qDebug() <<"help";
     setGeometry(0,0,desktop->width(),desktop->height());
     groupBox->setGeometry(x,y,gWidth,gHeight);
     hide();
     pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
     show();
     setMouseTracking(true);
+   // picker->setChecked(true);
+
+}
+
+void ColorChooser::pickerMode(bool ye)
+{
+    if(ye){
+        enterPickerMode();
     }else{
         exitPickerMode();
     }
@@ -401,7 +407,7 @@ void ColorChooser::setSliderLabels()
     redSlider->setMaxLabel(QString::number(color.red()));
     greenSlider->setMaxLabel(QString::number(color.green()));
     blueSlider->setMaxLabel(QString::number(color.blue()));
-    hexEdit->setText(toHex());
+    hexEdit->setText(color.name());
 
 
 }

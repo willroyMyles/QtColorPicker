@@ -12,6 +12,7 @@
 #include <qstackedwidget.h>
 #include <qdebug.h>
 #include <qpainter.h>
+#include <QSpinBox>
 
 namespace Ui {
 class ColorChooser;
@@ -33,7 +34,7 @@ private slots:
     void changeBackgroundColorOfDisplayWidgetHsv();
     void changeBackgroundColorOfDisplayWidgetRgb();
     void configureDisplay();
-    void enterPickerMode();
+    void pickerMode(bool ye);
 
 
 private:
@@ -45,8 +46,8 @@ private:
     void setStyleForApplication();
     void ErrorAdjustSliderValues();
     void exitPickerMode();
-    QString toHex();
-    QString toHex(int a);
+    void enterPickerMode();
+
 
 protected:
     void mouseMoveEvent(QMouseEvent *event);
@@ -78,7 +79,8 @@ private:
     QLineEdit *hexEdit;
     QLabel *hLabel, *sLabel, *vLabel, *rLabel, *gLabel, *bLabel;
     QLabel *hValueLabel, *sValueLabel, *vValueLabel, *rValueLabel, *gValueLabel, *bValueLabel;
-   // CustomSlider *sliderOne;
+    QSpinBox *rSpin, *gSpin, *bSpin, *hSpin, *sSpin, *vSpin;
+    // CustomSlider *sliderOne;
 };
 
 
@@ -172,20 +174,19 @@ protected:
 
         if(orientation() == Qt::Horizontal){
             int x = 5;
-            int z = (rect.width()-maxLabel.length()*4) -13;
+         //   int z = (rect.width()-maxLabel.length()*4) -13;
             qreal y = rect.height() * .75;
             QColor color(250,250,250);
             QPen pen(color);
             painter.setPen(pen);
             painter.drawText(QPoint(x,y),minLabel);
-            painter.drawText(QPoint(z,y),maxLabel);
+          //  painter.drawText(QPoint(z,y),maxLabel);
 
 
         }else{
 
             int x = width()/2 -1;
             qreal y = (rect.height()/255.0f) * value();
-            qDebug() << value() << "   " << rect.height()  << "  " << y;
             QColor color(250,250,250);
             if(value() > 195)
                 color.setRgb(50,50,50);
