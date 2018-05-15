@@ -39,7 +39,7 @@ ColorChooser::~ColorChooser()
 void ColorChooser::changeBackgroundColorOfDisplayWidgetHsv()
 {
 
-    color.setHsv(hueSlider->value(),saturationSlider->value(), adjustSlider->value());
+    color.setHsv(hueSlider->value(),saturationSlider->value(), -adjustSlider->value());
     circlebg->drawSmallCircle(color);
     setValueInColor();
     setRgbSliders(color);
@@ -133,9 +133,13 @@ void ColorChooser::configureDisplay()
     saturationSlider = new CustomSlider(Qt::Horizontal);
     valueSlider = new CustomSlider(Qt::Horizontal);
     adjustSlider = new CustomSlider(Qt::Vertical);
-    adjustSlider->setInvertedAppearance(true);
-    connect(valueSlider,SIGNAL(valueChanged(int)),adjustSlider,SLOT(setValue(int)));
-    connect(adjustSlider,SIGNAL(valueChanged(int)),valueSlider,SLOT(setValue(int)));
+    //adjustSlider->setInvertedAppearance(true);
+    connect(valueSlider,&CustomSlider::valueChanged,[=](){
+        adjustSlider->setValue(-valueSlider->value());
+    });
+    connect(adjustSlider,&CustomSlider::valueChanged,[=](){
+        valueSlider->setValue(-adjustSlider->value());
+    });
 
     rSpin = new QSpinBox();
         rSpin->setRange(0,255);
@@ -161,7 +165,7 @@ void ColorChooser::configureDisplay()
     blueSlider->setMaximum(255);
     saturationSlider->setMaximum(255);
     valueSlider->setMaximum(255);
-    adjustSlider->setMaximum(255);
+    adjustSlider->setRange(-255,0);
     hueSlider->setMaximum(360);
 
     colorLayout->addSpacing(30);
@@ -273,6 +277,8 @@ void ColorChooser::setConnections()
         connect(saturationSlider, SIGNAL(valueChanged(int)),sSpin,SLOT(setValue(int)));
         connect(valueSlider, SIGNAL(valueChanged(int)),vSpin,SLOT(setValue(int)));
 
+        connect(hexEdit,SIGNAL(returnPressed()),this,SLOT(setColorFromHex()));
+
 }
 
 void ColorChooser::setColorBackground()
@@ -289,7 +295,7 @@ void ColorChooser::setStyleForApplication()
                    " QSlider::groove { border: 1px solid black; margin: 2px 0px;}"
                    " QSlider::add-page {background: rgba(90,90,90,1); border-radius: 3px;}"
                    " QSlider::sub-page {background: rgba(0,0,0,1); border-radius: 3px;}"
-                   "QSlider::groove:vertical{background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 black, stop: 1 white); border-radius: 5px;}"
+                   "QSlider::groove:vertical{background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 white, stop: 1 black); border-radius: 5px;}"
                    " QSlider::add-page:vertical {background: rgba(0,0,0,0); border-radius: 3px;}"
                    " QSlider::sub-page:vertical {background: rgba(90,90,90,0); border-radius: 3px;}"
                    "QWidget{ background: rgba(50,50,50,1);border: 1px solid rgba(0,0,0,0); padding:0px; }"
@@ -394,6 +400,15 @@ void ColorChooser::setHsvSliders(QColor color)
     valueSlider->setValue(color.value());
     this->color = color;
     setSliderLabels();
+
+}
+
+void ColorChooser::setColorFromHex()
+{
+    color.setNamedColor(hexEdit->text());
+    setSliders(color);
+    setValueInColor();
+    circlebg->drawSmallCircle(color);
 
 }
 

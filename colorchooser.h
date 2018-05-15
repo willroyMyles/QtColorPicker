@@ -59,6 +59,7 @@ protected:
     void setSliders(QColor color);
     void setRgbSliders(QColor color);
     void setHsvSliders(QColor color);
+    void setColorFromHex();
     void setSliderLabels();
     void setValueInColor();
 
@@ -137,22 +138,17 @@ class CustomSlider : public QSlider
     CustomSlider(QWidget *parent = Q_NULLPTR){
         QSlider::QSlider(parent);
         QSlider::setStyle(new CustomStyle(this->style()));
-        connect(this,&QSlider::sliderReleased,[this](){
-           adjustValue();
-        });
+
 
     }
     CustomSlider(Qt::Orientation orientation, QWidget *parent = Q_NULLPTR){
         QSlider::QSlider(parent);
         QSlider::setOrientation(orientation);
         QSlider::setStyle(new CustomStyle(this->style()));
-        connect(this,&QSlider::sliderReleased,[this](){
-           adjustValue();
-        });
+
     }
 
     void adjustValue(){
-        qDebug() << "test";
         if(value() <= 2)
            setValue(0);
         if(value()>= 253 && maximum()==255){
@@ -170,7 +166,6 @@ protected:
         painter.setRenderHint(QPainter::HighQualityAntialiasing);
 
         QRect rect = geometry();
-      //  this->setFont();
 
         if(orientation() == Qt::Horizontal){
             int x = 5;
@@ -186,7 +181,7 @@ protected:
         }else{
 
             int x = width()/2 -1;
-            qreal y = (rect.height()/255.0f) * value();
+            qreal y = (rect.height()/255.0f) * -value();
             QColor color(250,250,250);
             if(value() > 195)
                 color.setRgb(50,50,50);
