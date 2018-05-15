@@ -39,7 +39,6 @@ private slots:
 
 private:
     Ui::ColorChooser *ui;
-     QColor colorHSL, colorRGB, colorHEX;
 
     void setConnections();
     void setColorBackground();
@@ -70,18 +69,17 @@ private:
     QRgb rgb;
     QColor color;
     ColorCircle* circlebg;
-    int r,g,b,a,h,s,v,l, x, y, gWidth, gHeight;
+    int x, y, gWidth, gHeight;
 
     QGroupBox* groupBox;
     CustomSlider *redSlider, *greenSlider, *blueSlider, *hueSlider, *saturationSlider, *valueSlider, *adjustSlider;
     QStackedWidget *stackHolder;
     QPushButton *cancel, *select, *picker, *rgbBtn, *hsv, *hex;
-    QWidget *colorDisplay, *rgbHolder, *hsvHolder, *hexHolder, *buttonHolder, *mainHolder;
+    QWidget *colorDisplay, *rgbHolder, *hsvHolder, *hexHolder;
     QLineEdit *hexEdit;
     QLabel *hLabel, *sLabel, *vLabel, *rLabel, *gLabel, *bLabel;
     QLabel *hValueLabel, *sValueLabel, *vValueLabel, *rValueLabel, *gValueLabel, *bValueLabel;
     QSpinBox *rSpin, *gSpin, *bSpin, *hSpin, *sSpin, *vSpin;
-    // CustomSlider *sliderOne;
 };
 
 
@@ -142,9 +140,8 @@ class CustomSlider : public QSlider
 
     }
     CustomSlider(Qt::Orientation orientation, QWidget *parent = Q_NULLPTR){
-        QSlider::QSlider(parent);
+        CustomSlider::CustomSlider(parent);
         QSlider::setOrientation(orientation);
-        QSlider::setStyle(new CustomStyle(this->style()));
 
     }
 

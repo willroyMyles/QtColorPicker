@@ -19,7 +19,6 @@ protected:
     void paintEvent(QPaintEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     QImage *image;
@@ -28,10 +27,8 @@ private:
     QPoint centerPoint;
     QColor color;
     QPoint pos;
-    bool isPressed, isDragging;
     void drawCircleColorBackground();
-    bool inCircle(QPoint point);
-    bool outsideCirle(QPoint point);
+
     QColor getCurrentColorFromPosition();
 
 public slots:

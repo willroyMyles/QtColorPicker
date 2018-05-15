@@ -43,12 +43,7 @@ void ColorCircle::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0,0,*image);
-
     QColor color1(240,240,240);
-
-
-
-
     QPen pen(color1,2);
     painter.setPen(pen);
     painter.drawEllipse(4,4,width()-8, height()-8);
@@ -66,13 +61,6 @@ void ColorCircle::paintEvent(QPaintEvent *event)
 
 void ColorCircle::mouseMoveEvent(QMouseEvent *event)
 {
-
-
-
-    if(isPressed){
-        isDragging = true;
-    }
-
     QPoint mousePoint = event->pos();
         QVector2D mousePos(mousePoint.x(), mousePoint.y());
         auto centerPos = QVector2D(centerPoint.x(), centerPoint.y());
@@ -80,28 +68,15 @@ void ColorCircle::mouseMoveEvent(QMouseEvent *event)
         if (diff.length() > radius) {
             diff = diff.normalized() * radius;
         }
-
         auto position = centerPos + diff;
         pos.setX(position.x());
         pos.setY(position.y());
-        qDebug() << "outside";
-        repaint();
+      //  repaint();
         emit positionChanged( getCurrentColorFromPosition() );
- //   }
 }
 
 void ColorCircle::mousePressEvent(QMouseEvent *event)
 {
-
-//    isPressed = true;
-
-//    QPoint pp = mapFromGlobal(QCursor::pos());
-//    if(inCircle(pp) && isPressed){
-//        pos = pp;
-//        repaint();
-//        emit positionChanged( getCurrentColorFromPosition() );
-//    }
-
     QPoint mousePoint = event->pos();
         QVector2D mousePos(mousePoint.x(), mousePoint.y());
         auto centerPos = QVector2D(centerPoint.x(), centerPoint.y());
@@ -109,20 +84,14 @@ void ColorCircle::mousePressEvent(QMouseEvent *event)
         if (diff.length() > radius) {
             diff = diff.normalized() * radius;
         }
-
         auto position = centerPos + diff;
         pos.setX(position.x());
         pos.setY(position.y());
-        repaint();
+       // repaint();
         emit positionChanged( getCurrentColorFromPosition() );
 
 }
 
-void ColorCircle::mouseReleaseEvent(QMouseEvent *event)
-{
-    isPressed = false;
-    isDragging = false;
-}
 
 
 
@@ -143,7 +112,6 @@ void ColorCircle::drawCircleColorBackground()
                    qreal theta = qAtan2(point.ry()-centerPoint.ry(), point.rx()-centerPoint.rx());
 
                    theta = (180 +90 + (int)qRadiansToDegrees(theta))%360;
-                   //qDebug() << s << ' '<<theta;
                    color.setHsv(theta,s,v,255);
                    image->setPixelColor(i,j,color);
                }else{
@@ -154,28 +122,6 @@ void ColorCircle::drawCircleColorBackground()
     }
 }
 
-bool ColorCircle::inCircle(QPoint point)
-{
-
-
-       int d = qPow(point.rx()-centerPoint.rx(), 2) + qPow(point.ry() - centerPoint.ry(), 2);
-       if(d <= qPow(radius,2)) {
-
-            return true;
-       }
-
-            return false;
-}
-
-bool ColorCircle::outsideCirle(QPoint point)
-{
-
-       int d = qPow(point.rx()-centerPoint.rx(), 2) + qPow(point.ry() - centerPoint.ry(), 2);
-       if(d > qPow(radius,2)) {
-            return true;
-       }
-       return false;
-}
 
 QColor ColorCircle::getCurrentColorFromPosition()
 {
@@ -195,7 +141,6 @@ QColor ColorCircle::getCurrentColorFromPosition()
             v=0;
 
             color.setHsv(theta,s,v,255);
-        qDebug() << theta << " " << s << " " << v;
         return color;
 
 
