@@ -18,7 +18,8 @@ ColorChooser::ColorChooser(QWidget *parent) :
     setAttribute(Qt::WA_TranslucentBackground);
     desktop = new QDesktopWidget;
 
-    setGeometry(desktop->width()/2 - 150,desktop->height()/2 - 200,300,400);
+    setContentsMargins(0,0,0,0);
+    setGeometry(desktop->width()/2 - 150,desktop->height()/2 - 200,300,410);
     x = geometry().x();
     y = geometry().y();
     gWidth = geometry().width();
@@ -127,11 +128,17 @@ void ColorChooser::configureDisplay()
     valueSlider = new CustomSlider(Qt::Horizontal);
     adjustSlider = new CustomSlider(Qt::Vertical);
     //adjustSlider->setInvertedAppearance(true);
-    connect(valueSlider,&CustomSlider::valueChanged,[=](){
-        adjustSlider->setValue(-valueSlider->value());
+    connect(valueSlider,&CustomSlider::sliderMoved,[=](){
+        adjustSlider->setValue(valueSlider->sliderPosition());
     });
-    connect(adjustSlider,&CustomSlider::valueChanged,[=](){
-        valueSlider->setValue(-adjustSlider->value());
+    connect(adjustSlider,&CustomSlider::sliderMoved,[=](){
+        valueSlider->setValue(adjustSlider->sliderPosition());
+    });
+    connect(valueSlider,&CustomSlider::sliderPressed,[=](){
+        adjustSlider->setValue(valueSlider->sliderPosition());
+    });
+    connect(adjustSlider,&CustomSlider::sliderPressed,[=](){
+        valueSlider->setValue(adjustSlider->sliderPosition());
     });
 
     rSpin = new QSpinBox();
@@ -158,13 +165,13 @@ void ColorChooser::configureDisplay()
     blueSlider->setMaximum(255);
     saturationSlider->setMaximum(255);
     valueSlider->setMaximum(255);
-    adjustSlider->setRange(-255,0);
+    adjustSlider->setRange(0,255);
     hueSlider->setMaximum(360);
 
-    colorLayout->addSpacing(30);
+    colorLayout->addSpacing(20);
     colorLayout->addWidget(colorDisplay);
     colorLayout->addWidget(adjustSlider);
-    colorLayout->addSpacing(50);
+    colorLayout->addSpacing(40);
 
     rSliderSpin->addWidget(redSlider);
     rSliderSpin->addWidget(rSpin);
@@ -237,48 +244,48 @@ void ColorChooser::setConnections()
     connect(picker, SIGNAL(toggled(bool)),this,SLOT(pickerMode(bool)));
 
     connect(hueSlider, &CustomSlider::sliderPressed,[=](){
-        hSpin->setValue(hueSlider->value());
+        hSpin->setValue(hueSlider->sliderPosition());
     });
     connect(saturationSlider, &CustomSlider::sliderPressed,[=](){
-        sSpin->setValue(saturationSlider->value());
+        sSpin->setValue(saturationSlider->sliderPosition());
     });
     connect(valueSlider, &CustomSlider::sliderPressed,[=](){
-        vSpin->setValue(valueSlider->value());
+        vSpin->setValue(valueSlider->sliderPosition());
     });
     connect(adjustSlider, &CustomSlider::sliderPressed,[=](){
-        vSpin->setValue(valueSlider->value());
+        vSpin->setValue(valueSlider->sliderPosition());
     });
     connect(redSlider, &CustomSlider::sliderPressed,[=](){
-        rSpin->setValue(redSlider->value());
+        rSpin->setValue(redSlider->sliderPosition());
     });
     connect(greenSlider, &CustomSlider::sliderPressed,[=](){
-        gSpin->setValue(greenSlider->value());
+        gSpin->setValue(greenSlider->sliderPosition());
     });
     connect(blueSlider,&CustomSlider::sliderPressed,[=](){
-        bSpin->setValue(blueSlider->value());
+        bSpin->setValue(blueSlider->sliderPosition());
     });
 
 
     connect(hueSlider, &CustomSlider::sliderMoved,[=](){
-        hSpin->setValue(hueSlider->value());
+        hSpin->setValue(hueSlider->sliderPosition());
     });
     connect(saturationSlider, &CustomSlider::sliderMoved,[=](){
-        sSpin->setValue(saturationSlider->value());
+        sSpin->setValue(saturationSlider->sliderPosition());
     });
     connect(valueSlider, &CustomSlider::sliderMoved,[=](){
-        vSpin->setValue(valueSlider->value());
+        vSpin->setValue(valueSlider->sliderPosition());
     });
     connect(adjustSlider, &CustomSlider::sliderMoved,[=](){
-        vSpin->setValue(valueSlider->value());
+        vSpin->setValue(valueSlider->sliderPosition());
     });
     connect(redSlider, &CustomSlider::sliderMoved,[=](){
-        rSpin->setValue(redSlider->value());
+        rSpin->setValue(redSlider->sliderPosition());
     });
     connect(greenSlider, &CustomSlider::sliderMoved,[=](){
-        gSpin->setValue(greenSlider->value());
+        gSpin->setValue(greenSlider->sliderPosition());
     });
     connect(blueSlider,&CustomSlider::sliderMoved,[=](){
-        bSpin->setValue(blueSlider->value());
+        bSpin->setValue(blueSlider->sliderPosition());
     });
 
 
@@ -304,7 +311,7 @@ void ColorChooser::setConnections()
 
 void ColorChooser::setColorBackground()
 {
-    colorDisplay->setGeometry(0,0,132,132);
+    colorDisplay->setGeometry(0,0,152,152);
     circlebg = new ColorCircle(colorDisplay);
 
 }
@@ -317,12 +324,14 @@ void ColorChooser::setStyleForApplication()
                    " QSlider::add-page {background: rgba(90,90,90,1); border-radius: 3px;}"
                    " QSlider::sub-page {background: rgba(0,0,0,1); border-radius: 3px;}"
                    "QSlider::groove:vertical{background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 white, stop: 1 black); border-radius: 5px;}"
+                   " QSlider::handle:vertical {height: 1px; width:1px; margin: -2px 0px; background: rgba(250,100,100,0.9); }"
                    " QSlider::add-page:vertical {background: rgba(0,0,0,0); border-radius: 3px;}"
                    " QSlider::sub-page:vertical {background: rgba(90,90,90,0); border-radius: 3px;}"
-                   "QWidget{ background: rgba(50,50,50,1);border: 1px solid rgba(0,0,0,0); padding:0px; }"
+                   "QWidget{ background: rgba(50,50,50,1);border: 1px solid rgba(0,0,0,0); padding:0px; spacing : 0px;}"
                    "QLineEdit {border: 1px solid rgba(0,0,0,.4); color: rgba(255,255,255,.8); }"
                    "QPushButton{ background: rgba(60,60,60,1); color: rgba(255,255,255,.9); padding: 2px; border: 1px solid rgba(0,0,0,.4); border-radius:2px; }"
-                   "QPushButton::checked {background: rgba(45,45,45,.9); }");
+                   "QPushButton::checked {background: rgba(45,45,45,.9); }"
+                   "QSpinBox { color:rgba(255,255,255,.8); }");
 
 }
 
@@ -344,12 +353,27 @@ void ColorChooser::exitPickerMode()
 
 void ColorChooser::enterPickerMode()
 {
-    setGeometry(0,0,desktop->width(),desktop->height());
-    groupBox->setGeometry(x,y,gWidth,gHeight);
-    hide();
+
+
     pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
-    show();
-    setMouseTracking(true);
+//    groupBox->hide();
+//    setGeometry(0,0,desktop->width(),desktop->height());
+
+//    pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+//    groupBox->show();
+//    groupBox->setGeometry(x,y,gWidth,gHeight);
+//    setMouseTracking(true);
+
+
+
+
+
+//    setGeometry(0,0,desktop->width(),desktop->height());
+//    groupBox->setGeometry(x,y,gWidth,gHeight);
+//    hide();
+//    pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+//    show();
+//    setMouseTracking(true);
     // picker->setChecked(true);
 
 }

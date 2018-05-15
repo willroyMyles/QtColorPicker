@@ -178,9 +178,11 @@ protected:
         }else{
 
             int x = width()/2 -1;
-            qreal y = (rect.height()/255.0f) * -value();
+            //qreal y = -((rect.height()/255.0f) * value()) + maximum();
+            qreal y = sliderPosition();
+
             QColor color(250,250,250);
-            if(value() > 195)
+            if(value() < 195)
                 color.setRgb(50,50,50);
             QPen pen(color);
             pen.setWidth(2);
@@ -192,6 +194,12 @@ protected:
     }
 
 private:
+
+
+};
+
+class CustomBackground : public QWidget
+{
 
 
 };
