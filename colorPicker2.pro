@@ -34,3 +34,6 @@ HEADERS += \
 
 FORMS += \
         colorchooser.ui
+
+RESOURCES += \
+    res.qrc

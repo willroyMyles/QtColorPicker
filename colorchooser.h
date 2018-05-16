@@ -145,7 +145,7 @@ private:
     int x, y, gWidth, gHeight;
 
     QGroupBox* groupBox;
-    CustomSlider *redSlider, *greenSlider, *blueSlider, *hueSlider, *saturationSlider, *valueSlider, *adjustSlider;
+    CustomSlider *alphaSlider, *redSlider, *greenSlider, *blueSlider, *hueSlider, *saturationSlider, *valueSlider, *adjustSlider;
     QStackedWidget *stackHolder;
     QPushButton *cancel, *select, *picker, *rgbBtn, *hsv, *hex;
     QWidget *colorDisplay, *rgbHolder, *hsvHolder, *hexHolder;
@@ -267,7 +267,8 @@ protected:
     }
 
 private:
-
+QColor color;
+bool isColorSlider;
 
 };
 

@@ -5,6 +5,7 @@
 #include <qmath.h>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QStyleOption>
 
 ColorCircle::ColorCircle(QWidget *parent) : QWidget(parent)
 {
@@ -15,6 +16,12 @@ ColorCircle::ColorCircle(QWidget *parent) : QWidget(parent)
     v=255;
     drawCircleColorBackground();
     repaint();
+
+    QPalette palette;
+    palette.setBrush(this->backgroundRole(), QBrush(QImage("bg.png")));
+    qDebug() << QImage("bg.png");
+    this->setPalette(palette);
+    this->setStyleSheet("background-image:url(bg.png); ");
 
 }
 
@@ -39,9 +46,12 @@ void ColorCircle::setValueInColor(QColor color)
 
 void ColorCircle::paintEvent(QPaintEvent *event)
 {
+    QStyleOption opt;
+    opt.init(this);
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
     painter.drawImage(0,0,*image);
     QColor color1(240,240,240);
     QPen pen(color1,2);
@@ -56,6 +66,8 @@ void ColorCircle::paintEvent(QPaintEvent *event)
     pen.setColor(color1);
     painter.setPen(pen);
     painter.drawEllipse(QPoint(pos.x(), pos.y()), 2,2);
+
+    QWidget::paintEvent(event);
 
 }
 
@@ -115,7 +127,7 @@ void ColorCircle::drawCircleColorBackground()
                    color.setHsv(theta,s,v,255);
                    image->setPixelColor(i,j,color);
                }else{
-                   color.setRgb(240,240,240,0);
+                   color.setRgb(50,50,50);
                    image->setPixelColor(i,j,color);
                }
         }

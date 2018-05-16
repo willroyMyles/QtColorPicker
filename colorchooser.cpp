@@ -20,6 +20,7 @@ ColorChooser::ColorChooser(QWidget *parent) :
 
     setContentsMargins(0,0,0,0);
     setGeometry(desktop->width()/2 - 150,desktop->height()/2 - 200,300,410);
+
     x = geometry().x();
     y = geometry().y();
     gWidth = geometry().width();
@@ -63,6 +64,8 @@ void ColorChooser::configureDisplay()
 {
     groupBox = new QGroupBox();
     auto mainLayout = new QGridLayout();
+    //mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+
     mainLayout->addWidget(groupBox);
     setLayout(mainLayout);
 
@@ -127,7 +130,9 @@ void ColorChooser::configureDisplay()
     hueSlider = new CustomSlider(Qt::Horizontal);
     saturationSlider = new CustomSlider(Qt::Horizontal);
     valueSlider = new CustomSlider(Qt::Horizontal);
+    alphaSlider = new CustomSlider(Qt::Horizontal);
     adjustSlider = new CustomSlider(Qt::Vertical);
+    alphaSlider->setObjectName(QStringLiteral("alphaSlider"));
     //adjustSlider->setInvertedAppearance(true);
     connect(valueSlider,&CustomSlider::sliderMoved,[=](){
         adjustSlider->setValue(valueSlider->sliderPosition());
@@ -193,6 +198,10 @@ void ColorChooser::configureDisplay()
     hsvLayout->addLayout(hSliderSpin);
     hsvLayout->addLayout(sSliderSpin);
     hsvLayout->addLayout(vSliderSpin);
+
+
+
+
     //    rgbLayout->addWidget(redSlider);
     //    rgbLayout->addWidget(greenSlider);
     //    rgbLayout->addWidget(blueSlider);
@@ -212,6 +221,7 @@ void ColorChooser::configureDisplay()
     vLayout->addSpacing(15);
     vLayout->addLayout(buttonLayout);
     vLayout->addWidget(stackHolder);
+    vLayout->addWidget(alphaSlider);
     vLayout->addLayout(finalButtonLayout);
     groupBox->setGeometry(0,0,gWidth,gHeight);
 }
@@ -315,6 +325,7 @@ void ColorChooser::setConnections()
 void ColorChooser::setColorBackground()
 {
     colorDisplay->setGeometry(0,0,152,152);
+    colorDisplay->setFixedSize(152,152);
     circlebg = new ColorCircle(colorDisplay);
 
 }
@@ -357,26 +368,6 @@ void ColorChooser::enterPickerMode()
 
     pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
       cbg->drawPixmap(pixmap);
-//    groupBox->hide();
-//    setGeometry(0,0,desktop->width(),desktop->height());
-
-//    pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
-//    groupBox->show();
-//    groupBox->setGeometry(x,y,gWidth,gHeight);
- //   setMouseTracking(true);
-
-
-
-
-
-//    setGeometry(0,0,desktop->width(),desktop->height());
-//    groupBox->setGeometry(x,y,gWidth,gHeight);
-//    hide();
-//    pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
-//    show();
-//    setMouseTracking(true);
-    // picker->setChecked(true);
-
 }
 
 void ColorChooser::pickerMode(bool ye)
@@ -390,13 +381,13 @@ void ColorChooser::pickerMode(bool ye)
 
 void ColorChooser::mouseMoveEvent(QMouseEvent *event)
 {
-    if(picker->isChecked()){
-        rgb = pixmap.toImage().pixel(this->mapFromGlobal(QCursor::pos()));
-        color = color.fromRgb(rgb);
-        setSliders(color);
-        setValueInColor();
-        circlebg->drawSmallCircle(color);
-    }
+//    if(picker->isChecked()){
+//        rgb = pixmap.toImage().pixel(this->mapFromGlobal(QCursor::pos()));
+//        color = color.fromRgb(rgb);
+//        setSliders(color);
+//        setValueInColor();
+//        circlebg->drawSmallCircle(color);
+//    }
 }
 
 void ColorChooser::mousePressEvent(QMouseEvent *event)
@@ -427,6 +418,8 @@ void ColorChooser::setSliders(QColor color)
     setRgbSliders(color);
     setHsvSliders(color);
     blockSignals(false);
+    setValueInColor();
+    circlebg->drawSmallCircle(color);
 }
 
 void ColorChooser::setRgbSliders(QColor color)
