@@ -124,7 +124,7 @@ void ColorCircle::drawCircleColorBackground()
                    qreal theta = qAtan2(point.ry()-centerPoint.ry(), point.rx()-centerPoint.rx());
 
                    theta = (180 +90 + (int)qRadiansToDegrees(theta))%360;
-                   color.setHsv(theta,s,v,255);
+                   color.setHsv(theta,s,v,alpha);
                    image->setPixelColor(i,j,color);
                }else{
                    color.setRgb(50,50,50);
@@ -156,4 +156,9 @@ QColor ColorCircle::getCurrentColorFromPosition()
         return color;
 
 
+}
+
+void ColorCircle::setOpacity(int a)
+{
+    this->alpha = a;
 }

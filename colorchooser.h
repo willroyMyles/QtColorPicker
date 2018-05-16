@@ -239,13 +239,13 @@ protected:
 
         if(orientation() == Qt::Horizontal){
             int x = 5;
-         //   int z = (rect.width()-maxLabel.length()*4) -13;
+            int z = (rect.width()-maxLabel.length()*4) -13;
             qreal y = rect.height() * .75;
             QColor color(250,250,250);
             QPen pen(color);
             painter.setPen(pen);
             painter.drawText(QPoint(x,y),minLabel);
-          //  painter.drawText(QPoint(z,y),maxLabel);
+            painter.drawText(QPoint(z,y),maxLabel);
 
 
         }else{

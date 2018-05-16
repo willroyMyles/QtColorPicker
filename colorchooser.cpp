@@ -166,6 +166,7 @@ void ColorChooser::configureDisplay()
     hueSlider->setMinLabel(QString("H:"));
     saturationSlider->setMinLabel(QString("S:"));
     valueSlider->setMinLabel(QString("V:"));
+    alphaSlider->setMinLabel(QString("Alpha"));
     redSlider->setMaximum(255);
     greenSlider->setMaximum(255);
     blueSlider->setMaximum(255);
@@ -173,6 +174,8 @@ void ColorChooser::configureDisplay()
     valueSlider->setMaximum(255);
     adjustSlider->setRange(0,255);
     hueSlider->setMaximum(360);
+    alphaSlider->setRange(0,255);
+
 
     colorLayout->addSpacing(20);
     colorLayout->addWidget(colorDisplay);
@@ -300,6 +303,13 @@ void ColorChooser::setConnections()
     connect(blueSlider,&CustomSlider::sliderMoved,[=](){
         bSpin->setValue(blueSlider->sliderPosition());
     });
+
+    connect(alphaSlider,&CustomSlider::valueChanged,[=](){
+        circlebg->setOpacity(alphaSlider->sliderPosition());
+        setValueInColor();
+        alphaSlider->setMaxLabel(QString::number(alphaSlider->sliderPosition()));
+    });
+
 
 
 
@@ -479,6 +489,7 @@ void ColorChooser::setSliderLabels()
 
 void ColorChooser::setValueInColor()
 {
+
 
     circlebg->setValueInColor(color);
 }

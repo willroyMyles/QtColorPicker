@@ -22,7 +22,7 @@ protected:
 
 private:
     QImage *image;
-    int radius, v;
+    int radius, v, alpha=255;
     qreal s;
     QPoint centerPoint;
     QColor color;
@@ -32,6 +32,7 @@ private:
     QColor getCurrentColorFromPosition();
 
 public slots:
+    void setOpacity(int a);
 };
 
 #endif // COLORCIRCLE_H
