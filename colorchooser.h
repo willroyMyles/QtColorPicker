@@ -38,7 +38,7 @@ public:
        pixmap = &pm;
        image = pixmap->toImage();
        isBig = true;
-       qDebug() << pixmap << "  "  ;
+//       qDebug() << pixmap << "  "  ;
        repaint();
    }
 
@@ -78,7 +78,7 @@ protected:
         if(isBig){
 
             color = color.fromRgb(image.pixel(this->mapFromGlobal(QCursor::pos())));
-            qDebug() << color;
+//            qDebug() << color;
             emit positionChanged(color);
         }
 
@@ -153,6 +153,7 @@ private:
     QLabel *hLabel, *sLabel, *vLabel, *rLabel, *gLabel, *bLabel;
     QLabel *hValueLabel, *sValueLabel, *vValueLabel, *rValueLabel, *gValueLabel, *bValueLabel;
     QSpinBox *rSpin, *gSpin, *bSpin, *hSpin, *sSpin, *vSpin;
+    QDoubleSpinBox *alphaSpin;
 };
 
 
@@ -233,6 +234,7 @@ protected:
         QSlider::paintEvent(event);
 
         QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
         painter.setRenderHint(QPainter::HighQualityAntialiasing);
 
         QRect rect = geometry();

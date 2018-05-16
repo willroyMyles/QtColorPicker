@@ -7,7 +7,7 @@
 #include <QMouseEvent>
 #include <QStyleOption>
 
-ColorCircle::ColorCircle(QWidget *parent) : QWidget(parent)
+ColorCircle::ColorCircle(QWidget *parent, QColor ic) : QWidget(parent)
 {
     setGeometry(4,4,parent->width()-4,parent->height()-4);
     radius = width()/2-4;
@@ -19,9 +19,12 @@ ColorCircle::ColorCircle(QWidget *parent) : QWidget(parent)
 
     QPalette palette;
     palette.setBrush(this->backgroundRole(), QBrush(QImage("bg.png")));
-    qDebug() << QImage("bg.png");
+  //  qDebug() << QImage("bg.png");
     this->setPalette(palette);
     this->setStyleSheet("background-image:url(bg.png); ");
+    configureResetButton();
+   setInitialColor(ic);
+
 
 }
 
@@ -40,8 +43,14 @@ void ColorCircle::drawSmallCircle(QColor color)
 void ColorCircle::setValueInColor(QColor color)
 {
     this->v = color.value();
+    currentColor = color;
     drawCircleColorBackground();
     repaint();
+}
+
+void ColorCircle::setInitialColor(QColor ic)
+{
+    initialColor = ic;
 }
 
 void ColorCircle::paintEvent(QPaintEvent *event)
@@ -67,6 +76,17 @@ void ColorCircle::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
     painter.drawEllipse(QPoint(pos.x(), pos.y()), 2,2);
 
+    pen.setColor(initialColor);
+    pen.setWidth(8);
+    painter.setPen(pen);
+    painter.drawEllipse(resetButton->geometry());
+
+    pen.setColor(currentColor);
+    pen.setWidth(8);
+    painter.setPen(pen);
+    painter.drawEllipse(7,height()-12,8,8);
+
+
     QWidget::paintEvent(event);
 
 }
@@ -84,7 +104,8 @@ void ColorCircle::mouseMoveEvent(QMouseEvent *event)
         pos.setX(position.x());
         pos.setY(position.y());
       //  repaint();
-        emit positionChanged( getCurrentColorFromPosition() );
+        currentColor = getCurrentColorFromPosition();
+        emit positionChanged( currentColor );
 }
 
 void ColorCircle::mousePressEvent(QMouseEvent *event)
@@ -100,7 +121,8 @@ void ColorCircle::mousePressEvent(QMouseEvent *event)
         pos.setX(position.x());
         pos.setY(position.y());
        // repaint();
-        emit positionChanged( getCurrentColorFromPosition() );
+        currentColor = getCurrentColorFromPosition();
+        emit positionChanged( currentColor );
 
 }
 
@@ -132,6 +154,17 @@ void ColorCircle::drawCircleColorBackground()
                }
         }
     }
+}
+
+void ColorCircle::configureResetButton()
+{
+    resetButton = new QPushButton(this);
+    resetButton->setGeometry(6,6,7,7);
+    resetButton->setStyleSheet("background: rgba(0,0,0,0); border: 1px solid transparent; ");
+    connect(resetButton, &QPushButton::clicked, [=](){
+        drawSmallCircle(initialColor);
+        emit positionChanged(initialColor);
+    });
 }
 
 

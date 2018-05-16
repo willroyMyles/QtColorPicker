@@ -33,6 +33,7 @@ ColorChooser::ColorChooser(QWidget *parent) :
     setStyleForApplication();
     color = color.fromRgb(255,255,255);
     setSliders(color);
+    alphaSpin->setValue(1.0);
 
 }
 
@@ -82,6 +83,7 @@ void ColorChooser::configureDisplay()
     QHBoxLayout *hSliderSpin = new QHBoxLayout();
     QHBoxLayout *sSliderSpin = new QHBoxLayout();
     QHBoxLayout *vSliderSpin = new QHBoxLayout();
+    QHBoxLayout *alphaSliderLayout = new QHBoxLayout();
     groupBox->setLayout(vLayout);
 
     rgbLayout->setSpacing(0);
@@ -132,6 +134,7 @@ void ColorChooser::configureDisplay()
     valueSlider = new CustomSlider(Qt::Horizontal);
     alphaSlider = new CustomSlider(Qt::Horizontal);
     adjustSlider = new CustomSlider(Qt::Vertical);
+
     alphaSlider->setObjectName(QStringLiteral("alphaSlider"));
     //adjustSlider->setInvertedAppearance(true);
     connect(valueSlider,&CustomSlider::sliderMoved,[=](){
@@ -146,7 +149,6 @@ void ColorChooser::configureDisplay()
     connect(adjustSlider,&CustomSlider::sliderPressed,[=](){
         valueSlider->setValue(adjustSlider->sliderPosition());
     });
-
     rSpin = new QSpinBox();
     rSpin->setRange(0,255);
     gSpin = new QSpinBox();
@@ -159,6 +161,9 @@ void ColorChooser::configureDisplay()
     sSpin->setRange(0,255);
     vSpin = new QSpinBox();
     vSpin->setRange(0,255);
+    alphaSpin = new QDoubleSpinBox();
+    alphaSpin->setRange(0.0,1.0);
+    alphaSpin->setSingleStep(0.1);
 
     redSlider->setMinLabel(QString("R:"));
     greenSlider->setMinLabel(QString("G:"));
@@ -176,6 +181,7 @@ void ColorChooser::configureDisplay()
     hueSlider->setMaximum(360);
     alphaSlider->setRange(0,255);
 
+    adjustSlider->setSliderPosition(255);
 
     colorLayout->addSpacing(20);
     colorLayout->addWidget(colorDisplay);
@@ -220,11 +226,18 @@ void ColorChooser::configureDisplay()
 
     // vLayout->addWidget(mainHolder);
     // vLayout->addWidget(buttonHolder);
+
+    alphaSliderLayout->addSpacing(10);
+    alphaSliderLayout->addWidget(alphaSlider);
+    alphaSliderLayout->addWidget(alphaSpin);
+    alphaSliderLayout->addSpacing(10);
+    alphaSliderLayout->setSpacing(0);
+
     vLayout->addLayout(colorLayout);
     vLayout->addSpacing(15);
     vLayout->addLayout(buttonLayout);
     vLayout->addWidget(stackHolder);
-    vLayout->addWidget(alphaSlider);
+    vLayout->addLayout(alphaSliderLayout);
     vLayout->addLayout(finalButtonLayout);
     groupBox->setGeometry(0,0,gWidth,gHeight);
 }
@@ -307,10 +320,16 @@ void ColorChooser::setConnections()
     connect(alphaSlider,&CustomSlider::valueChanged,[=](){
         circlebg->setOpacity(alphaSlider->sliderPosition());
         setValueInColor();
-        alphaSlider->setMaxLabel(QString::number(alphaSlider->sliderPosition()));
+        alphaSpin->setValue(alphaSlider->sliderPosition()/255.0f);
+       // alphaSlider->setMaxLabel(QString::number(alphaSlider->sliderPosition()));
     });
 
+    connect(alphaSpin,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this, [this](double val){
+        int r = val *255.0f;
+        alphaSlider->setValue(r);
+    });
 
+//connect(alphaSpin, QOverload<int>::of(&QDoubleSpinBox::valueChanged), this, [this](int newValue) { });
 
 
     connect(circlebg, SIGNAL(positionChanged(QColor)), this,SLOT(setSliders(QColor)));
@@ -336,7 +355,7 @@ void ColorChooser::setColorBackground()
 {
     colorDisplay->setGeometry(0,0,152,152);
     colorDisplay->setFixedSize(152,152);
-    circlebg = new ColorCircle(colorDisplay);
+    circlebg = new ColorCircle(colorDisplay, QColor(255,0,0));
 
 }
 
@@ -355,7 +374,7 @@ void ColorChooser::setStyleForApplication()
                    "QLineEdit {border: 1px solid rgba(0,0,0,.4); color: rgba(255,255,255,.8); }"
                    "QPushButton{ background: rgba(60,60,60,1); color: rgba(255,255,255,.9); padding: 2px; border: 1px solid rgba(0,0,0,.4); border-radius:2px; }"
                    "QPushButton::checked {background: rgba(45,45,45,.9); }"
-                   "QSpinBox { color:rgba(255,255,255,.8); }");
+                   "QAbstractSpinBox { color:rgba(255,255,255,.8); }");
 
 }
 
