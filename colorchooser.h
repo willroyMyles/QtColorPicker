@@ -20,8 +20,80 @@ class ColorChooser;
 
 class ColorCircle;
 
+class CustomBackground : public QWidget
+{
+    Q_OBJECT
+public:
+    CustomBackground(QWidget *parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags()){
+        QWidget::QWidget(parent);
+        setWindowFlags(Qt::FramelessWindowHint  | Qt::X11BypassWindowManagerHint);
+        //setAttribute(Qt::WA_TranslucentBackground);
+        desktop = new QDesktopWidget;
+        setGeometry(desktop->width()/2 ,desktop->height()/2 ,3,3);
+        show();
+    }
+
+    void drawPixmap(QPixmap pm){
+       setGeometry(0,0,desktop->width(),desktop->height());
+       pixmap = &pm;
+       image = pixmap->toImage();
+       isBig = true;
+       qDebug() << pixmap << "  "  ;
+       repaint();
+   }
+
+    void shrink(){
+        setGeometry(desktop->width()/2 ,desktop->height()/2 ,3,3);
+        isBig=false;
+
+        emit finished(isBig);
+
+   }
+
+private:
+    QDesktopWidget *desktop;
+    QPixmap *pixmap;
+    QImage image;
+    bool isBig=false;
+    QColor color;
+
+protected:
+    void paintEvent(QPaintEvent *event){
+        if(isBig){
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::HighQualityAntialiasing);
+        painter.drawPixmap(0,0,desktop->width(),desktop->height(),*pixmap);
+      //  qDebug() << *pixmap << "  "  ;;
+        setMouseTracking(true);
+
+        }
+    }
+
+    void mousePressEvent(QMouseEvent *event){
+        shrink();
+    }
+
+    void mouseMoveEvent(QMouseEvent *event)
+    {
+        if(isBig){
+
+            color = color.fromRgb(image.pixel(this->mapFromGlobal(QCursor::pos())));
+            qDebug() << color;
+            emit positionChanged(color);
+        }
+
+    }
+
+signals:
+    void finished(bool b);
+    void positionChanged(QColor color);
+
+};
+
+
 
 class CustomSlider;
+class CustomBackground;
 class ColorChooser : public QWidget
 {
     Q_OBJECT
@@ -66,6 +138,7 @@ protected:
 private:
     QDesktopWidget *desktop;
     QPixmap pixmap;
+    CustomBackground *cbg;
     QRgb rgb;
     QColor color;
     ColorCircle* circlebg;
@@ -198,10 +271,5 @@ private:
 
 };
 
-class CustomBackground : public QWidget
-{
-
-
-};
 
 #endif // COLORCHOOSER_H

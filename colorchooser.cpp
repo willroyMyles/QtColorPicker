@@ -24,6 +24,7 @@ ColorChooser::ColorChooser(QWidget *parent) :
     y = geometry().y();
     gWidth = geometry().width();
     gHeight = geometry().height();
+    cbg = new CustomBackground(this);
 
     configureDisplay();
     setColorBackground();
@@ -242,6 +243,8 @@ void ColorChooser::setConnections()
     });
 
     connect(picker, SIGNAL(toggled(bool)),this,SLOT(pickerMode(bool)));
+    connect(cbg,SIGNAL(finished(bool)),this,SLOT(pickerMode(bool)));
+    connect(cbg,SIGNAL(positionChanged(QColor)),this,SLOT(setSliders(QColor)));
 
     connect(hueSlider, &CustomSlider::sliderPressed,[=](){
         hSpin->setValue(hueSlider->sliderPosition());
@@ -342,9 +345,6 @@ void ColorChooser::ErrorAdjustSliderValues()
 
 void ColorChooser::exitPickerMode()
 {
-    setGeometry(desktop->width()/2 - gWidth/2,desktop->height()/2 - gHeight/2,gWidth,gHeight);
-    setMouseTracking(false);
-    repaint();
     picker->setChecked(false);
 }
 
@@ -356,13 +356,14 @@ void ColorChooser::enterPickerMode()
 
 
     pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+      cbg->drawPixmap(pixmap);
 //    groupBox->hide();
 //    setGeometry(0,0,desktop->width(),desktop->height());
 
 //    pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
 //    groupBox->show();
 //    groupBox->setGeometry(x,y,gWidth,gHeight);
-//    setMouseTracking(true);
+ //   setMouseTracking(true);
 
 
 
